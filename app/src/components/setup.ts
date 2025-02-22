@@ -2,8 +2,8 @@
 
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
 import { AnchorProvider, setProvider } from "@coral-xyz/anchor";
-import idl from "../../../../target/idl/will_sol.json"
-import type {WillSol} from "../../../../target/types/will_sol"
+import idl from "../../../target/idl/will_sol.json"
+import type {WillSol} from "../../../target/types/will_sol"
 
 const { connection } = useConnection();
 const wallet = useAnchorWallet();

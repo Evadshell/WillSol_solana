@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import AppWalletProvider from "../app/components/AppWalletProvider";
+import AppWalletProvider from "../components/AppWalletProvider";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

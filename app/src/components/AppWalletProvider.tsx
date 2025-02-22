@@ -2,7 +2,10 @@
 
 import React, { useMemo } from "react";
 import {
+  AnchorWallet,
   ConnectionProvider,
+  useConnection,
+  useWallet,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
@@ -12,7 +15,13 @@ import { clusterApiUrl } from "@solana/web3.js";
 
 // Default styles that can be overridden by your app
 import "@solana/wallet-adapter-react-ui/styles.css";
-
+import dynamic from "next/dynamic";
+import { AnchorProvider } from "@coral-xyz/anchor";
+export const WalletButton = dynamic(
+  async () =>
+    (await import('@solana/wallet-adapter-react-ui')).WalletMultiButton,
+  { ssr: false }
+);
 export default function AppWalletProvider({
     children,
   }: {
@@ -35,4 +44,13 @@ export default function AppWalletProvider({
         </WalletProvider>
       </ConnectionProvider>
     );
+  }
+
+  export function useAnchorProvider() {
+    const { connection } = useConnection();
+    const wallet = useWallet();
+  
+    return new AnchorProvider(connection, wallet as AnchorWallet, {
+      commitment: 'confirmed',
+    });
   }

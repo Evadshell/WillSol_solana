@@ -3,12 +3,13 @@
 use {
     anchor_lang::prelude::*,
     anchor_spl::{
+        associated_token::AssociatedToken,
         metadata::{
             create_metadata_accounts_v3, mpl_token_metadata::types::DataV2,
             CreateMetadataAccountsV3, Metadata,
         },
-        associated_token::AssociatedToken,
-        token::{mint_to, Mint, MintTo, Token, TokenAccount},    },
+        token::{mint_to, Mint, MintTo, Token, TokenAccount},
+    },
 };
 
 declare_id!("7rqSkHiGHGJEbTNsQsDKEfkdxdqcx9EyTPdKW3Vju7um");
@@ -24,42 +25,43 @@ pub mod will_sol {
     ) -> Result<()> {
         msg!("Creating metadata account");
 
-    // PDA signer seeds
-    let signer_seeds: &[&[&[u8]]] = &[&[b"mint", &[ctx.bumps.mint_account]]];
+        // PDA signer seeds
+        let signer_seeds: &[&[&[u8]]] = &[&[b"mint", &[ctx.bumps.mint_account]]];
 
-    // Cross Program Invocation (CPI) signed by PDA
-    // Invoking the create_metadata_account_v3 instruction on the token metadata program
-    create_metadata_accounts_v3(
-        CpiContext::new(
-            ctx.accounts.token_metadata_program.to_account_info(),
-            CreateMetadataAccountsV3 {
-                metadata: ctx.accounts.metadata_account.to_account_info(),
-                mint: ctx.accounts.mint_account.to_account_info(),
-                mint_authority: ctx.accounts.mint_account.to_account_info(), // PDA is mint authority
-                update_authority: ctx.accounts.mint_account.to_account_info(), // PDA is update authority
-                payer: ctx.accounts.payer.to_account_info(),
-                system_program: ctx.accounts.system_program.to_account_info(),
-                rent: ctx.accounts.rent.to_account_info(),
+        // Cross Program Invocation (CPI) signed by PDA
+        // Invoking the create_metadata_account_v3 instruction on the token metadata program
+        create_metadata_accounts_v3(
+            CpiContext::new(
+                ctx.accounts.token_metadata_program.to_account_info(),
+                CreateMetadataAccountsV3 {
+                    metadata: ctx.accounts.metadata_account.to_account_info(),
+                    mint: ctx.accounts.mint_account.to_account_info(),
+                    mint_authority: ctx.accounts.mint_account.to_account_info(), // PDA is mint authority
+                    update_authority: ctx.accounts.mint_account.to_account_info(), // PDA is update authority
+                    payer: ctx.accounts.payer.to_account_info(),
+                    system_program: ctx.accounts.system_program.to_account_info(),
+                    rent: ctx.accounts.rent.to_account_info(),
+                },
+            )
+            .with_signer(signer_seeds),
+            DataV2 {
+                name: token_name,
+
+                symbol: token_symbol,
+                uri: token_uri,
+                seller_fee_basis_points: 0,
+                creators: None,
+                collection: None,
+                uses: None,
             },
-        )
-        .with_signer(signer_seeds),
-        DataV2 {
-            name: token_name,
-            symbol: token_symbol,
-            uri: token_uri,
-            seller_fee_basis_points: 0,
-            creators: None,
-            collection: None,
-            uses: None,
-        },
-        false, // Is mutable
-        true,  // Update authority is signer
-        None,  // Collection details
-    )?;
+            false, // Is mutable
+            true,  // Update authority is signer
+            None,  // Collection details
+        )?;
 
-    msg!("Token created successfully.");
+        msg!("Token created successfully.");
 
-    Ok(())
+        Ok(())
     }
     pub fn mint_token(ctx: Context<MintToken>, amount: u64) -> Result<()> {
         msg!("Minting token to associated token account...");
@@ -68,10 +70,10 @@ pub mod will_sol {
             "Token Address: {}",
             &ctx.accounts.associated_token_account.key()
         );
-    
+
         // PDA signer seeds
         let signer_seeds: &[&[&[u8]]] = &[&[b"mint", &[ctx.bumps.mint_account]]];
-    
+
         // Invoke the mint_to instruction on the token program
         mint_to(
             CpiContext::new(
@@ -85,13 +87,12 @@ pub mod will_sol {
             .with_signer(signer_seeds), // using PDA to sign
             amount * 10u64.pow(ctx.accounts.mint_account.decimals as u32), // Mint tokens, adjust for decimals
         )?;
-    
+
         msg!("Token minted successfully.");
-    
+
         Ok(())
     }
 }
-
 
 #[derive(Accounts)]
 pub struct MintToken<'info> {
