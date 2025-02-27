@@ -11,7 +11,7 @@ will_sol = "7rqSkHiGHGJEbTNsQsDKEfkdxdqcx9EyTPdKW3Vju7um"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "Devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
